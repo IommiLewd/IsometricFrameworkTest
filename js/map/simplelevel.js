@@ -12,7 +12,7 @@ class SimpleLevel extends Phaser.State {
         super();
     }
 
-    _loadLevel() {
+    _loadLevel(tiles) {
         this.game.canvas.oncontextmenu = function (e) {
             e.preventDefault();
         }
@@ -22,21 +22,59 @@ class SimpleLevel extends Phaser.State {
         this.floorGroup = game.add.group();
 
         var floorTile;
-        for (var xt = 110; xt < 356; xt += 81) {
-            for (var yt = 110; yt < 356; yt += 81) {
+        var initialPosition = 150;
+        var numberOfTiles = tiles;
+        var tileWidth = 81;
+        var totalLength = numberOfTiles * tileWidth + initialPosition;
+//        var tiles = [
+//            8, 0, 0, 0, 8,
+//            0, 1, 1, 1, 0,
+//            0, 1, 1, 1, 0,
+//            0, 1, 1, 1, 0,
+//            8, 0, 0, 0, 8,
+//        ];
+        
+        
+        
+                var tiles = [
+            8, 8, 8, 8, 8, 8, 8,
+            8, 8, 0, 0, 0, 8, 8,
+            8, 0, 1, 1, 1, 0, 8,
+            8, 0, 1, 1, 1, 0, 8,
+            8, 0, 1, 1, 1, 0, 8,
+            8, 8, 0, 0, 0, 8, 8,
+            8, 8, 8, 8, 8, 8, 8,
+        ];
+        
+        var i = 0;
+        for (var xt = initialPosition; xt < totalLength; xt += tileWidth) {
+            for (var yt = initialPosition; yt < totalLength; yt += tileWidth) {
+                if(tiles[i] != 8){
                 floorTile = game.add.isoSprite(xt, yt, 0, 'initialTileset', 0, this.floorGroup);
                 floorTile.anchor.set(0.5);
                 floorTile.selectionMade = false;
                 var randomTile = Math.floor(Math.random() * (6 - 0 + 1)) + 0;
-                floorTile.frame = randomTile;
+                floorTile.frame = tiles[i];
+                }
+                i++;
             }
         }
+      //  this._generateExtensions(initialPosition, numberOfTiles, tileWidth);
     }
 
 
 
-//    _generateExtension() {
-//    }
+    _generateExtensions(position, tiles, width) {
+        console.log('generate Extensions!!!');
+        var xx = width * tiles + position;
+        var yy = position;
+        //var yy = width * tiles + position;
+        //xx =  tiles * width/* + position*//* - 30*/;
+        //yy =  tiles * width + position - 82;
+        this.extension = this.game.add.isoSprite(xx, yy, 0, 'initialTileset', 0);
+
+        this.extension.anchor.set(0.5);
+    }
 
 
 
@@ -47,7 +85,7 @@ class SimpleLevel extends Phaser.State {
         this.game.physics.startSystem(Phaser.Plugin.Isometric.ISOARCADE);
         this.cursorPos = new Phaser.Plugin.Isometric.Point3();
         this.game.plugins.add(new Phaser.Plugin.Isometric(this.game));
-        this._loadLevel();
+        this._loadLevel(7);
         //this._generateExtension();
         this.game.iso.simpleSort(this.floorGroup);
     }
@@ -115,12 +153,12 @@ class SimpleLevel extends Phaser.State {
 
 
     }
-    
-    
-    render(){
-   
-            this.game.debug.body(this.floorGroup);
-    
-    
+
+
+    render() {
+
+        this.game.debug.body(this.floorGroup);
+
+
     }
 }

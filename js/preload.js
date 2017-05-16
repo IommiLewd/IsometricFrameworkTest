@@ -4,6 +4,7 @@ class Preload extends Phaser.State {
 
         this.load.script('simpleLevel', 'js/map/simplelevel.js');
         this.load.spritesheet('initialTileset', 'img/highResTileset.png', 150, 88, 6);
+        this.load.image('tileBuyButton', 'img/tileBuyButton.png');
 
 
     }
