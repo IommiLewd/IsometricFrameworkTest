@@ -1,12 +1,3 @@
-/**
- * base class for a simple game level.
- *
- * @constructor  {}
- * @method   :
- * @property :
- * startPosition {} (x,y)
- */
-
 class SimpleLevel extends Phaser.State {
     constructor() {
         super();
@@ -17,77 +8,122 @@ class SimpleLevel extends Phaser.State {
             e.preventDefault();
         }
         this.game.stage.backgroundColor = "#1b2823";
-        this.game.world.setBounds(0, 0, 800, 500);
+        this.game.world.setBounds(0, 0, 1040, 540);
         this.game.iso.anchor.setTo(0.5, 0);
         this.floorGroup = game.add.group();
-
+        this.camera.x = 200;
+        this.camera.y = 90;
         var floorTile;
-        var initialPosition = 150;
+        var initialPosition = 60;
         var numberOfTiles = tiles;
         var tileWidth = 81;
         var totalLength = numberOfTiles * tileWidth + initialPosition;
-//        var tiles = [
-//            8, 0, 0, 0, 8,
-//            0, 1, 1, 1, 0,
-//            0, 1, 1, 1, 0,
-//            0, 1, 1, 1, 0,
-//            8, 0, 0, 0, 8,
-//        ];
-        
-        
-        
-                var tiles = [
-            8, 8, 8, 8, 8, 8, 8,
-            8, 8, 0, 0, 0, 8, 8,
-            8, 0, 1, 1, 1, 0, 8,
-            8, 0, 1, 1, 1, 0, 8,
-            8, 0, 1, 1, 1, 0, 8,
-            8, 8, 0, 0, 0, 8, 8,
-            8, 8, 8, 8, 8, 8, 8,
+        this.tiles = [
+            0, 0, 0, 0, 0, 0, 0, //6
+            0, 0, 1, 1, 1, 0, 0, //13
+            0, 1, 2, 2, 2, 1, 0, //20
+            0, 1, 2, 2, 2, 1, 0, //27
+            0, 1, 2, 2, 2, 1, 0,
+            0, 0, 1, 1, 1, 0, 0,
+            0, 0, 0, 0, 0, 0, 0,
         ];
-        
+
         var i = 0;
-        for (var xt = initialPosition; xt < totalLength; xt += tileWidth) {
-            for (var yt = initialPosition; yt < totalLength; yt += tileWidth) {
-                if(tiles[i] != 8){
+        for (var yt = initialPosition; yt < totalLength; yt += tileWidth) {
+            for (var xt = initialPosition; xt < totalLength; xt += tileWidth) {
                 floorTile = game.add.isoSprite(xt, yt, 0, 'initialTileset', 0, this.floorGroup);
                 floorTile.anchor.set(0.5);
                 floorTile.selectionMade = false;
+                floorTile.tileNumber = i;
                 var randomTile = Math.floor(Math.random() * (6 - 0 + 1)) + 0;
-                floorTile.frame = tiles[i];
-                }
+                floorTile.frame = 0;
                 i++;
             }
         }
-      //  this._generateExtensions(initialPosition, numberOfTiles, tileWidth);
+        this._sortTiles();
+
+    }
+
+    _sortTiles() {
+        for (var i = 0; i < this.tiles.length; i++) {
+            this.floorGroup.children[i].frame = this.tiles[i];
+        }
+        //this._tileLogger(); 
     }
 
 
 
-    _generateExtensions(position, tiles, width) {
-        console.log('generate Extensions!!!');
-        var xx = width * tiles + position;
-        var yy = position;
-        //var yy = width * tiles + position;
-        //xx =  tiles * width/* + position*//* - 30*/;
-        //yy =  tiles * width + position - 82;
-        this.extension = this.game.add.isoSprite(xx, yy, 0, 'initialTileset', 0);
 
-        this.extension.anchor.set(0.5);
+    _buyTiles(place) {
+        var up = place - 7;
+        var down = place + 7;
+        var left = place - 1;
+        var right = place + 1;
+        var roundedUp = (Math.ceil(place / 7) * 7 - 1);
+        if (place > roundedUp) {
+            roundedUp += 7;
+        }
+        console.log('place is: ' + place + ' rounded number is: ' + roundedUp);
+        if (this.tiles[place] === 1) {
+            this.tiles[place] = 2;
+
+            if (this.tiles[up] === 0 /* && place <  roundedNumber + 1 && place >  roundedNumber - 1*/ ) {
+                console.log('up');
+                this.tiles[up] = 1;
+            }
+            if (this.tiles[down] === 0 /* && place <  roundedNumber + 1 && place >  roundedNumber - 1*/ ) {
+                console.log('down');
+                this.tiles[down] = 1;
+            }
+
+            if (this.tiles[left] === 0 && place > roundedUp - 6) {
+                console.log('left ' + left);
+                this.tiles[left] = 1;
+
+            }
+
+            if (this.tiles[right] === 0 && place < roundedUp) {
+                console.log('right ' + right);
+                this.tiles[right] = 1;
+            }
+        }
+        this._sortTiles();
+        this._tileLogger();
+
+        //        console.log('   ' + this.tiles[up]);
+        //        console.log(this.tiles[left] + '  ' + place + '(' + this.tiles[place] + ')' + '   ' + this.tiles[right]);
+        //        console.log('   ' + this.tiles[down]);
     }
 
 
 
-    preload() {
 
+
+
+
+
+
+    _tileLogger() {
+        var s = "";
+        var k = 0;
+        for (var i = 0; i < this.tiles.length; i++) {
+            if (i % 7 === 0 && i != 0) {
+                s += '\n';
+            }
+            s += this.tiles[i] + ' ';
+        }
+        console.log(s);
     }
+
+    preload() {}
+
     create() {
         this.game.physics.startSystem(Phaser.Plugin.Isometric.ISOARCADE);
         this.cursorPos = new Phaser.Plugin.Isometric.Point3();
         this.game.plugins.add(new Phaser.Plugin.Isometric(this.game));
         this._loadLevel(7);
-        //this._generateExtension();
-        this.game.iso.simpleSort(this.floorGroup);
+        //this.game.iso.simpleSort(this.floorGroup);
+        this._tileLogger();
     }
     update() {
 
@@ -95,8 +131,7 @@ class SimpleLevel extends Phaser.State {
         this.floorGroup.forEach(function (tile) {
             var inBounds = tile.isoBounds.containsXY(this.cursorPos.x, this.cursorPos.y);
             // If it does, do a little animation and tint change.
-            if (!tile.selected && inBounds) {
-
+            if (!tile.selected && inBounds && tile.frame !== 0) {
                 tile.selected = true;
                 this.game.add.tween(tile).to({
                     isoZ: 6
@@ -104,12 +139,16 @@ class SimpleLevel extends Phaser.State {
             }
 
             if (this.game.input.activePointer.isDown) {
-                console.log();
+                this._sortTiles();
 
                 if (tile.selected && inBounds) {
+                    console.log('selected tile: ' + tile.tileNumber);
 
-                    console.log(tile.frame);
-
+                    if (tile.frame === 1) {
+                        //   tile.frame = 1;
+                        //this._buyTiles(tile);
+                        this._buyTiles(tile.tileNumber);
+                    }
                 }
 
                 tile.tint = 0x86bfda;
@@ -117,7 +156,6 @@ class SimpleLevel extends Phaser.State {
                 if (!tile.selected || !inBounds) {
                     tile.tint = 0xffffff;
                     tile.selectionMade = false;
-
                 }
             }
 
@@ -132,12 +170,9 @@ class SimpleLevel extends Phaser.State {
                 }, 200, Phaser.Easing.Quadratic.InOut, true);
             }
 
-
         }, this);
 
-
         if (this.game.input.activePointer.isDown) {
-
             if (this.game.origDragPoint) {
                 // move the camera by the amount the mouse has moved since last update		
                 this.game.camera.x += this.game.origDragPoint.x - this.game.input.activePointer.position.x;
@@ -149,16 +184,44 @@ class SimpleLevel extends Phaser.State {
             this.game.origDragPoint = null;
         }
 
-
-
-
     }
 
-
-    render() {
-
-        this.game.debug.body(this.floorGroup);
-
-
-    }
 }
+
+
+
+
+
+
+
+
+//    _buyTiles(place){
+//        console.log('BuyTiles fired');
+//    var up = place  - 7;
+//    var down = place + 7;
+//    var left = place - 1;
+//    var right = place + 1;
+////    if(this.tiles[place] === 1){
+////      this.tiles[place] = 2;
+//////      console.log('   ' + this.tiles[up]);
+//////      console.log(this.tiles[left] + '  ' + place + '(' + this.tiles[place] + ')' + '   ' + this.tiles[right]);
+//////      console.log('   ' + this.tiles[down]);
+////      if(this.tiles[up]  === 0){
+////          this.tiles[up] = 1;
+////      }
+////            if(this.tiles[down]  === 0){
+////          this.tiles[down] = 1;
+////      }
+////      
+////            if(this.tiles[left]  === 0){
+////          this.tiles[left] = 1;
+////      }
+////      
+////            if(this.tiles[right]  === 0){
+////        this.tiles[right] = 1;
+////      }
+////    }
+////this._sortTiles();
+//        this._tileLogger();
+//        this._sortTiles();
+//}
